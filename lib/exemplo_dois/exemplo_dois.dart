@@ -1,6 +1,7 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, prefer_const_constructors
 
 import 'package:change_nofitifier/exemplo_dois/pessoa_model.dart';
+import 'package:change_nofitifier/exemplo_dois/register_notifier.dart';
 import 'package:flutter/material.dart';
 
 class ExemploDois extends StatefulWidget {
@@ -11,18 +12,21 @@ class ExemploDois extends StatefulWidget {
 }
 
 class _ExemploDoisState extends State<ExemploDois> {
-  PessoaModel pessoa = PessoaModel(nome: 'Cristian', idade: 17);
+  final PessoaModel _pessoa = PessoaModel(nome: 'Cristian', idade: 17);
 
-  ValueNotifier<bool> cadastrar = ValueNotifier<bool>(false);
+  final RegisterNotifier _registerNotifier = RegisterNotifier(false);
+
 
   @override
   void initState() {
-    pessoa.addListener(() { 
-      if(pessoa.idade >= 18){
-        cadastrar.value = true;
-      }
-    });
+    _pessoa.addListener(_onListener);
     super.initState();
+  }
+
+  _onListener() {
+    if (_pessoa.idade >= 18) {
+      _registerNotifier.enableRegister();
+    }
   }
 
   @override
@@ -36,41 +40,36 @@ class _ExemploDoisState extends State<ExemploDois> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             AnimatedBuilder(
-              animation: pessoa,
+              animation: _pessoa,
               builder: (BuildContext context, Widget? child) {
                 return Column(
                   children: [
-                    Text('Nome : ${pessoa.nome}'),
-                    Text('Idade : ${pessoa.idade}'),
+                    Text('Nome : ${_pessoa.nome}'),
+                    Text('Idade : ${_pessoa.idade}'),
                   ],
                 );
               },
             ),
             ElevatedButton(
               onPressed: () {
-                pessoa.fazerAniversario();
-
+                _pessoa.fazerAniversario();
               },
               child: const Text('Fazer aniversario'),
             ),
             ElevatedButton(
               onPressed: () {
-                pessoa.mudarNome(novoNome: 'Dirceu');
+                _pessoa.mudarNome(novoNome: 'Dirceu');
               },
               child: const Text('Mudar nome'),
             ),
-
-            
             ValueListenableBuilder<bool>(
-              valueListenable: cadastrar,
+              valueListenable: _registerNotifier,
               builder: (BuildContext context, bool valor, Widget? child) {
                 if (valor) {
                   return Text('Parabens, agora voce é maior de idade !!');
-                  //Qualquer acao poderia ser tomada.
-                  //Chamadas de push notification, verificacoes em background etc....
-                } else {
-                  return Container();
                 }
+
+                return Container();
               },
             ),
           ],
